@@ -15,4 +15,5 @@ return array(
     $vendorDir . '/danielstjules/stringy/src/Create.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
     $vendorDir . '/laravel/framework/src/Illuminate/Support/helpers.php',
+    $baseDir . '/app/helpers.php',
 );
