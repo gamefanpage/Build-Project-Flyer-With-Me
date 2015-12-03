@@ -15,10 +15,6 @@ class CreateFlyersTable extends Migration {
 		Schema::create ('flyers', function (Blueprint $table)
 		{
 			$table->increments ('id');
-
-			$table->integer ('user_id')->unsigned ();
-			$table->foreign ('user_id')->references ('id')->on ('users')->onDelete ('cascade');
-
 			$table->string ('street');
 			$table->string ('city', 40);
 			$table->string ('zip', 10);
