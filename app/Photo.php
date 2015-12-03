@@ -6,9 +6,7 @@ use Image;
 use Illuminate\Database\Eloquent\Model;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @property mixed path
- */
+
 class Photo extends Model {
 
 	/**
@@ -26,11 +24,24 @@ class Photo extends Model {
 	protected $fillable = ['path', 'name', 'thumbnail_path'];
 
 	/**
-	 * The base directory, where photos are stored
+	 * The UploadedFile instance
 	 *
-	 * @var string
+	 * @var UploadedFile
 	 */
-	protected $baseDir = 'images/photos';
+	protected $file;
+
+	/**
+	 * When a photo is created, prepare a thumbnail, too.
+	 *
+	 * @return void
+	 */
+	protected static function boot()
+	{
+		static::creating (function ($photo)
+		{
+			return $photo->upload ();
+		});
+	}
 
 	/**
 	 * A photo belongs to a flyer.
@@ -43,41 +54,79 @@ class Photo extends Model {
 	}
 
 	/**
-	 * Build a new photo instance from a file upload.
+	 * Make a new photo instance from an uploaded file.
 	 *
-	 * @param string $name
+	 * @param UploadedFile $file
 	 * @return self
 	 */
-	public static function named($name)
+	public static function fromFile(UploadedFile $file)
 	{
+		$photo = new static;
 
-		return (new static)->saveAs ($name);
+		$photo->file = $file;
+
+		return $photo->fill ([
+			'name'           => $photo->fileName (),
+			'path'           => $photo->filePath (),
+			'thumbnail_path' => $photo->thumbnailPath ()
+		]);
 	}
 
-	public function saveAs($name)
+	public function fileName()
 	{
-		$this->name = sprintf ("%s-%s", time (), $name);
-		$this->path = sprintf ("%s/%s", $this->baseDir, $this->name);
-		$this->thumbnail_path = sprintf ("%s/tn-%s", $this->baseDir, $this->name);
+		$name = sha1 (
+			time () . $this->file->getClientOriginalName ()
+		);
+
+		$extension = $this->file->getClientOriginalExtension ();
+
+		return "{$name}.{$extension}";
+	}
+
+	public function filePath()
+	{
+		return $this->baseDir () . '/' . $this->fileName ();
+	}
+
+	public function thumbnailPath()
+	{
+		return $this->baseDir () . '/tn-' . $this->fileName ();
+	}
+
+	/**
+	 * The base directory, where photos are stored
+	 *
+	 * @return string
+	 */
+	public function baseDir()
+	{
+		return 'images/photos';
+	}
+
+	/**
+	 * Move the photo to the proper folder.
+	 *
+	 * @return self
+	 */
+	public function upload()
+	{
+		$this->file->move ($this->baseDir (), $this->fileName ());
+
+		$this->makeThumbnail ();
 
 		return $this;
 
 	}
 
-	public function move(UploadedFile $file)
-	{
-		$file->move ($this->baseDir, $this->name);
-
-		$this->makeThumbnail();
-
-		return $this;
-
-	}
-
+	/**
+	 * Create a thumbnail for the photo.
+	 *
+	 * @return void
+	 */
 	public function makeThumbnail()
 	{
-		Image::make ($this->path)
+		Image::make ($this->filePath ())
 			->fit (200)
-			->save ($this->thumbnail_path);
+			->save ($this->thumbnailPath ());
 	}
 }
