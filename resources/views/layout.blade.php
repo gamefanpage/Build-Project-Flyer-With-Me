@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top">
 	<div class="container">
 		<div class="navbar-header">
 			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -26,6 +26,12 @@
 				<li><a href="#about">About</a></li>
 				<li><a href="#contact">Contact</a></li>
 			</ul>
+
+			@if($signedIn)
+				<p class="navbar-text navbar-right">
+					Hello, {{ Auth::user()->name }}
+				</p>
+			@endif
 		</div>
 		<!--/.nav-collapse -->
 	</div>

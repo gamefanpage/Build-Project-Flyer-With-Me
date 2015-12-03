@@ -30,7 +30,7 @@ class Photo extends Model {
 	 *
 	 * @var string
 	 */
-	protected $baseDir = 'flyers/photos';
+	protected $baseDir = 'images/photos';
 
 	/**
 	 * A photo belongs to a flyer.

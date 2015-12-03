@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Flyer;
+use App\Http\Requests\ChangeFlyerRequest;
 use App\Photo;
 use Illuminate\Http\Request;
 use App\Http\Requests\FlyerRequest;
@@ -14,6 +15,8 @@ class FlyersController extends Controller {
 	public function __construct()
 	{
 		$this->middleware ('auth', ['except' => ['show']]);
+
+		parent::__construct ();
 	}
 
 	/**
@@ -67,22 +70,22 @@ class FlyersController extends Controller {
 	}
 
 	/**
+	 * Apply a photo to the referenced flyer.
+	 *
 	 * @param string $zip
 	 * @param string $street
-	 * @param Request $request
+	 * @param ChangeFlyerRequest $request
 	 */
-	public function addPhoto($zip, $street, Request $request)
+	public function addPhoto($zip, $street, ChangeFlyerRequest $request)
 	{
-		$this->validate ($request, [
-			'photo' => 'required|mimes:jpg,jpeg,png,bmp'
-		]);
-
 		$photo = $this->makePhoto ($request->file ('photo'));
 
 		Flyer::locatedAt ($zip, $street)->addPhoto ($photo);
 	}
 
 	/**
+	 * Setup a new photo.
+	 *
 	 * @param UploadedFile $file
 	 * @return mixed
 	 */
