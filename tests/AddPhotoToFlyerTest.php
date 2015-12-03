@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\AddPhotoToFlyer;
 use Mockery as m;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use TestCase;
